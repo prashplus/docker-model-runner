@@ -12,7 +12,7 @@ async def test_llama_quick():
     """Quick test of Llama 3.2 functionality"""
     base_url = "http://localhost:8000"
     
-    print("🦙 Quick Llama 3.2 Test")
+    print("LLAMA Quick Llama 3.2 Test")
     print("=" * 40)
     
     async with aiohttp.ClientSession() as session:
@@ -22,12 +22,12 @@ async def test_llama_quick():
             async with session.get(f"{base_url}/health") as response:
                 if response.status == 200:
                     health = await response.json()
-                    print(f"   ✓ Server healthy, {health['models_loaded']} models loaded")
+                    print(f"   [OK] Server healthy, {health['models_loaded']} models loaded")
                 else:
-                    print(f"   ✗ Health check failed: {response.status}")
+                    print(f"   [ERROR] Health check failed: {response.status}")
                     return
         except Exception as e:
-            print(f"   ✗ Cannot connect to server: {e}")
+            print(f"   [ERROR] Cannot connect to server: {e}")
             print("   Make sure the server is running: docker-compose up")
             return
         
@@ -39,9 +39,9 @@ async def test_llama_quick():
                 llama_available = any(m['name'] == 'llama3.2' for m in models)
                 print(f"   Models: {[m['name'] for m in models]}")
                 if not llama_available:
-                    print("   ⚠️  Llama 3.2 not loaded yet (may still be loading)")
+                    print("   [WARNING] Llama 3.2 not loaded yet (may still be loading)")
         except Exception as e:
-            print(f"   ✗ Failed to list models: {e}")
+            print(f"   [ERROR] Failed to list models: {e}")
         
         # Test Llama generation
         print("\n3. Testing Llama text generation...")
@@ -72,18 +72,18 @@ async def test_llama_quick():
                         result = await response.json()
                         elapsed = time.time() - start_time
                         
-                        print(f"   ✓ Generated in {elapsed:.1f}s")
+                        print(f"   [OK] Generated in {elapsed:.1f}s")
                         print(f"   Response: {result['generated_text'][:150]}...")
                         if len(result['generated_text']) > 150:
                             print("   ...")
                     else:
                         error = await response.text()
-                        print(f"   ✗ Generation failed ({response.status}): {error}")
+                        print(f"   [ERROR] Generation failed ({response.status}): {error}")
                         
             except asyncio.TimeoutError:
-                print("   ⏱️  Timeout - model may still be loading")
+                print("   [TIMEOUT] Timeout - model may still be loading")
             except Exception as e:
-                print(f"   ✗ Error: {e}")
+                print(f"   [ERROR] Error: {e}")
         
         # Test predict endpoint with text
         print("\n4. Testing predict endpoint with text...")
@@ -102,17 +102,17 @@ async def test_llama_quick():
                 if response.status == 200:
                     result = await response.json()
                     elapsed = time.time() - start_time
-                    print(f"   ✓ Predict endpoint works ({elapsed:.1f}s)")
+                    print(f"   [OK] Predict endpoint works ({elapsed:.1f}s)")
                     print(f"   Response: {result['predictions'][:100]}...")
                 else:
                     error = await response.text()
-                    print(f"   ✗ Predict failed ({response.status}): {error}")
+                    print(f"   [ERROR] Predict failed ({response.status}): {error}")
                     
         except Exception as e:
-            print(f"   ✗ Predict test error: {e}")
+            print(f"   [ERROR] Predict test error: {e}")
         
     print("\n" + "=" * 40)
-    print("🦙 Llama 3.2 test completed!")
+    print("LLAMA Llama 3.2 test completed!")
     print("\nFor interactive testing, run:")
     print("python client.py --mode interactive")
     print("\nFor full test suite, run:")

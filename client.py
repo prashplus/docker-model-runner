@@ -215,10 +215,32 @@ async def test_llama_generation(client: ModelRunnerClient):
     
     # Check if Llama model is available
     models = await client.list_models()
-    llama_available = any(model['name'] == 'llama3.2' for model in models)
+    llama_model = next((model for model in models if model['name'] == 'llama3.2'), None)
     
-    if not llama_available:
-        logger.warning("Llama 3.2 model not available, skipping text generation tests")
+    if not llama_model:
+        logger.warning("Llama 3.2 model not found in available models")
+        logger.info("Available models:", [m['name'] for m in models])
+        
+        # Try to load the model
+        logger.info("Attempting to load Llama 3.2 model...")
+        try:
+            await client.load_model("llama3.2")
+            logger.info("Llama 3.2 model load request sent, checking again...")
+            
+            # Wait a bit for loading
+            await asyncio.sleep(5)
+            models = await client.list_models()
+            llama_model = next((model for model in models if model['name'] == 'llama3.2'), None)
+            
+        except Exception as e:
+            logger.error(f"Failed to load Llama model: {e}")
+    
+    if not llama_model or not llama_model.get('loaded', False):
+        logger.warning("Llama 3.2 model not available or not loaded, skipping text generation tests")
+        logger.info("This might be due to:")
+        logger.info("  - Insufficient memory (Llama needs ~4-6GB RAM)")
+        logger.info("  - Model still downloading/loading (first time can take 5-10 minutes)")
+        logger.info("  - Container resource limits")
         return
     
     test_prompts = [
@@ -270,6 +292,8 @@ async def test_mixed_predictions(client: ModelRunnerClient):
         logger.info(f"   Llama Response: {result['predictions'][:100]}...")
     except Exception as e:
         logger.error(f"   Llama Prediction failed: {e}")
+
+async def test_error_handling(client: ModelRunnerClient):
     """Test error handling"""
     logger.info("\n" + "=" * 50)
     logger.info("Testing Error Handling")

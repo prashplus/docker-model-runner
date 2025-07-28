@@ -41,20 +41,74 @@ docker-compose up --build
 docker-compose up --build -d
 ```
 
+### Alternative: Quick Start Scripts
+
+Choose the script that works best for your environment:
+
+#### Python Script (Cross-platform, recommended)
+```bash
+# Install dependencies first
+pip install -r client-requirements.txt
+
+# Run the Python quick start script
+python quick-start.py
+```
+
+#### PowerShell (Windows)
+```powershell
+# Open PowerShell and run:
+.\scripts\quick-start.ps1
+
+# With options:
+.\scripts\quick-start.ps1 -SkipBuild    # Skip building if image exists
+.\scripts\quick-start.ps1 -SkipTest     # Skip running tests
+.\scripts\quick-start.ps1 -WaitTime 60  # Wait longer for startup
+
+# If you have execution policy issues:
+powershell -ExecutionPolicy Bypass -File .\scripts\quick-start.ps1
+```
+
+#### Batch File (Windows Command Prompt)
+```cmd
+# Run from Command Prompt:
+.\scripts\quick-start.bat
+```
+
+#### Bash (Linux/Mac)
+```bash
+# Make executable and run
+chmod +x scripts/quick-start.sh
+./scripts/quick-start.sh
+```
+
 ### 3. Test the API
 
-Install client dependencies:
+First, install client dependencies:
+
+#### Option A: Automatic Setup Scripts
+```bash
+# Windows PowerShell
+.\setup-client.ps1
+
+# Windows Batch
+.\setup-client.bat
+
+# Linux/Mac
+chmod +x setup-client.sh
+./setup-client.sh
+```
+
+#### Option B: Manual Installation
 ```bash
 pip install -r client-requirements.txt
 ```
 
-Run automated tests:
+Then run the tests:
 ```bash
+# Run automated tests
 python client.py --mode test
-```
 
-Or try interactive mode:
-```bash
+# Or try interactive mode
 python client.py --mode interactive
 ```
 
@@ -561,6 +615,40 @@ volumes:
 ## Troubleshooting
 
 ### Common Issues
+
+#### PowerShell Execution Policy Issues
+If the PowerShell script doesn't run:
+
+```powershell
+# Check current execution policy
+Get-ExecutionPolicy
+
+# Temporarily allow script execution (run as Administrator)
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+# Or run the script with bypass
+powershell -ExecutionPolicy Bypass -File .\scripts\quick-start.ps1
+
+# Alternative: Use the batch file instead
+.\scripts\quick-start.bat
+```
+
+#### Client Dependencies Issues
+If you get "ModuleNotFoundError" when running the client:
+
+```bash
+# Install client dependencies
+pip install -r client-requirements.txt
+
+# Or use the setup scripts
+.\setup-client.ps1    # Windows PowerShell
+.\setup-client.bat    # Windows Batch
+./setup-client.sh     # Linux/Mac
+
+# Check if dependencies are installed
+python -c "import aiohttp; print('aiohttp OK')"
+python -c "import requests; print('requests OK')"
+```
 
 #### Port Already in Use
 ```bash
