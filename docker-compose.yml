@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  model-runner:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - HOST=0.0.0.0
+      - PORT=8000
+      - TRANSFORMERS_CACHE=/app/cache
+      - HF_HOME=/app/cache
+      - TORCH_HOME=/app/cache
+    volumes:
+      - ./models:/app/models
+      - ./logs:/app/logs
+      - model_cache:/app/cache
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 8G
+        reservations:
+          memory: 4G
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+    networks:
+      - model-network
+
+networks:
+  model-network:
+    driver: bridge
+
+volumes:
+  model_cache:
